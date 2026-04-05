@@ -63,6 +63,8 @@ function sendStatus(routes) {
     remaining,
     next,
     count: totalReloads(),
+  }).catch(() => {
+    // Ignore error when popup is closed
   });
 }
 
