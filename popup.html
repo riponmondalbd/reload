@@ -1,66 +1,95 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <style>
-      body {
-        font-family: Arial;
-        width: 300px;
-        padding: 10px;
-      }
-      .url-list {
-        width: 100%;
-        max-height: 150px;
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        padding: 4px;
-      }
-      .url-item {
-        margin-bottom: 6px;
-      }
-      .url-item input {
-        width: 100%;
-      }
-      input[type="number"] {
-        width: 100%;
-        margin-top: 4px;
-      }
-      button {
-        width: 100%;
-        margin-top: 6px;
-      }
-      .small {
-        font-size: 12px;
-        color: #555;
-        margin-top: 4px;
-      }
-      label {
-        display: block;
-        margin-top: 6px;
-      }
-    </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Route Reloader</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h3>Route Reloader</h3>
+    <h3>
+      <svg viewBox="0 0 24 24"><path d="M12 2.75a9.25 9.25 0 104.737 17.197l-1.423-1.424A7.25 7.25 0 1112 4.75v1.942l3-2.5-3-2.5V2.75zM15 11h-2V7h-2v4H9l3 4 3-4z"/></svg>
+      Route Reloader
+    </h3>
 
-    <label>URLs (serial numbered)</label>
-    <div id="urlList" class="url-list"></div>
+    <!-- URL Section -->
+    <div class="section">
+      <div class="section-title">Target URLs</div>
+      <div id="urlList" class="url-list-container">
+        <!-- Rendered via JS -->
+      </div>
+      
+      <div class="btn-group">
+        <button id="addUrl" class="btn-outline">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Add URL
+        </button>
+        <button id="clearUrls" class="btn-outline">
+          <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+          Clear All
+        </button>
+      </div>
+    </div>
 
-    <button id="addUrl">Add URL</button>
-    <button id="clearUrls">Clear All URLs</button>
+    <!-- Settings Section -->
+    <div class="section">
+      <div class="section-title">Settings</div>
+      <div class="settings-group">
+        
+        <div class="setting-row">
+          <div class="setting-label">
+            <span>Max Random Delay</span>
+            <span class="setting-desc">Seconds before reload (1-300)</span>
+          </div>
+          <input id="maxsec" type="number" value="300" min="1" max="300" />
+        </div>
 
-    <label class="small">Max random seconds per route (1 to 300)</label>
-    <input id="maxsec" type="number" value="300" min="1" max="300" />
+        <div class="setting-row">
+          <div class="setting-label">
+            <span>Active Tab Only</span>
+            <span class="setting-desc">Reloads on the tab you are viewing</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="activeOnly" />
+            <span class="slider"></span>
+          </label>
+        </div>
 
-    <label class="small">
-      <input type="checkbox" id="activeOnly" /> Reload active tab only
-    </label>
+      </div>
+    </div>
 
-    <button id="start">Start / Resume</button>
-    <button id="pause">Pause</button>
-
-    <div class="small" id="next"></div>
-    <div class="small" id="timer"></div>
-    <div class="small" id="count"></div>
+    <!-- Status Dashboard -->
+    <div class="section">
+      <div class="status-dashboard" id="dashboard">
+        <div class="status-row">
+          <span class="status-label">Status</span>
+          <span class="status-value" id="runStatus">Stopped</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Next Reload in</span>
+          <span class="status-value" id="timer">-</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Next Target</span>
+          <span class="status-value" id="nextUrl">-</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Total Reloads</span>
+          <span class="status-value" id="count">0</span>
+        </div>
+      </div>
+      
+      <div class="main-actions">
+        <button id="startbtn" class="btn-primary">
+          <svg viewBox="0 0 24 24"><path d="M5 3l14 9-14 9V3z" fill="currentColor"/></svg>
+          Start
+        </button>
+        <button id="pausebtn" class="btn-danger">
+          <svg viewBox="0 0 24 24"><path d="M6 5h4v14H6V5zm8 0h4v14h-4V5z" fill="currentColor"/></svg>
+          Pause
+        </button>
+      </div>
+    </div>
 
     <script src="popup.js"></script>
   </body>

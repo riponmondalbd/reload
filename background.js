@@ -3,6 +3,15 @@ let remaining = 0;
 let routeIndex = 0;
 let domainCounts = {};
 
+// Reset running state when browser starts/restarts
+chrome.runtime.onStartup.addListener(() => {
+  chrome.storage.local.set({ running: false });
+});
+
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.set({ running: false });
+});
+
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "START") start();
   if (msg.type === "STOP") stop();
