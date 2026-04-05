@@ -6,10 +6,12 @@ let domainCounts = {};
 // Reset running state when browser starts/restarts
 chrome.runtime.onStartup.addListener(() => {
   chrome.storage.local.set({ running: false });
+  updateBadge(false);
 });
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.storage.local.set({ running: false });
+  updateBadge(false);
 });
 
 chrome.runtime.onMessage.addListener((msg) => {
@@ -17,9 +19,20 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "STOP") stop();
 });
 
+function updateBadge(isRunning) {
+  if (isRunning) {
+    chrome.action.setBadgeText({ text: "ON" });
+    chrome.action.setBadgeBackgroundColor({ color: "#4CAF50" }); // Green
+  } else {
+    chrome.action.setBadgeText({ text: "OFF" });
+    chrome.action.setBadgeBackgroundColor({ color: "#F44336" }); // Red
+  }
+}
+
 function stop() {
   if (timer) clearInterval(timer);
   timer = null;
+  updateBadge(false);
 }
 
 function rand(max) {
@@ -30,6 +43,7 @@ async function start() {
   stop();
   const d = await chrome.storage.local.get(["running"]);
   if (!d.running) return;
+  updateBadge(true);
   remaining = 1;
   timer = setInterval(tick, 1000);
 }
