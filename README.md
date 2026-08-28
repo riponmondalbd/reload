@@ -72,10 +72,10 @@ The extension automatically clears browser cache for each domain after 20 reload
 
 ## ⌨️ Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
+| Shortcut                   | Action               |
+| -------------------------- | -------------------- |
 | `Ctrl+Shift+R` (Win/Linux) | Toggle reload on/off |
-| `Cmd+Shift+R` (Mac) | Toggle reload on/off |
+| `Cmd+Shift+R` (Mac)        | Toggle reload on/off |
 
 ## 🔧 Development
 
@@ -88,10 +88,10 @@ The extension automatically clears browser cache for each domain after 20 reload
 
 ```bash
 # Clone the repository
-git clone https://github.com/riponmondalbd/route-auto-reloader-lite.git
+git clone https://github.com/riponmondalbd/reload
 
 # Navigate to the extension directory
-cd route-auto-reloader-lite
+cd reloadV4
 
 # The extension is ready to use - no build step required!
 ```
@@ -122,14 +122,15 @@ reloadV4/
 
 This extension requires the following permissions:
 
-| Permission | Purpose |
-|------------|---------|
-| `tabs` | Access tab information to identify and reload target URLs |
-| `storage` | Persist settings, routes, and reload counts |
-| `browsingData` | Clear browser cache per domain to prevent stale content |
-| `<all_urls>` | Navigate tabs to target URLs |
+| Permission     | Purpose                                                   |
+| -------------- | --------------------------------------------------------- |
+| `tabs`         | Access tab information to identify and reload target URLs |
+| `storage`      | Persist settings, routes, and reload counts               |
+| `browsingData` | Clear browser cache per domain to prevent stale content   |
+| `<all_urls>`   | Navigate tabs to target URLs                              |
 
 The extension **does not**:
+
 - Collect or transmit any personal data
 - Access content on pages beyond reloading them
 - Share any information with third parties
