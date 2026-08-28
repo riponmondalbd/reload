@@ -1,6 +1,6 @@
 # Route Auto Reloader Lite
 
-Route Auto Reloader Lite is a powerful yet lightweight Chrome Extension that allows you to automatically reload specific target URLs at randomized intervals. Developed with simplicity in mind, it provides a clean dashboard to monitor reload statuses and helps keep your desired webpages active or up-to-date.
+Route Auto Reloader Lite is a powerful yet lightweight Chrome Extension that allows you to automatically reload specific target URLs at randomized intervals. Developed with simplicity in mind, it provides a clean dashboard to monitor reload statuses and helps keep your desired webpages active or up-to-date. v2
 
 ## 🌟 Key Features
 
@@ -15,7 +15,7 @@ Route Auto Reloader Lite is a powerful yet lightweight Chrome Extension that all
 - **🔒 Smart Cache Management:** Auto-clears cache per domain every 20 reloads.
 - **✅ URL Validation:** Automatic validation and `https://` prefix correction.
 
-## 🚀 Installation 
+## 🚀 Installation
 
 ### Load Extension Locally (Developer Mode)
 
@@ -31,7 +31,7 @@ Route Auto Reloader Lite is a powerful yet lightweight Chrome Extension that all
 1. Click on the extension icon in your toolbar to open the popup interface.
 2. **Add URLs:** Click the "Add URL" button to insert the links you want the extension to reload.
 3. **Configure Per-URL Settings:** Each URL has its own Min/Max delay (seconds).
-4. **Configure Global Settings:** 
+4. **Configure Global Settings:**
    - Set the `Global Min Delay` and `Global Max Delay` as defaults for new URLs.
    - Toggle `Active Tab Only` depending on your needs.
 5. **Start:** Click the **Start** button to begin the auto-reload sequence.
