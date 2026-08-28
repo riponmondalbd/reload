@@ -18,7 +18,7 @@
       <div id="urlList" class="url-list-container">
         <!-- Rendered via JS -->
       </div>
-      
+
       <div class="btn-group">
         <button id="addUrl" class="btn-outline">
           <svg viewBox="0 0 24 24"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -28,6 +28,10 @@
           <svg viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
           Clear All
         </button>
+        <button id="updateUrls" class="btn-primary" style="flex: 1;">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Update
+        </button>
       </div>
     </div>
 
@@ -35,11 +39,19 @@
     <div class="section">
       <div class="section-title">Settings</div>
       <div class="settings-group">
-        
+
         <div class="setting-row">
           <div class="setting-label">
-            <span>Max Random Delay</span>
-            <span class="setting-desc">Seconds before reload (1-300)</span>
+            <span>Global Min Delay</span>
+            <span class="setting-desc">Minimum seconds before reload (1-300)</span>
+          </div>
+          <input id="minsec" type="number" value="10" min="1" max="300" />
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-label">
+            <span>Global Max Delay</span>
+            <span class="setting-desc">Maximum seconds before reload (1-300)</span>
           </div>
           <input id="maxsec" type="number" value="300" min="1" max="300" />
         </div>
@@ -53,6 +65,24 @@
             <input type="checkbox" id="activeOnly" />
             <span class="slider"></span>
           </label>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-label">
+            <span>Export / Import</span>
+            <span class="setting-desc">Backup or restore your settings</span>
+          </div>
+          <div class="btn-group" style="flex: 1; justify-content: flex-end;">
+            <button id="exportBtn" class="btn-outline">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Export
+            </button>
+            <button id="importBtn" class="btn-outline">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 10l-5 5-5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Import
+            </button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" />
+          </div>
         </div>
 
       </div>

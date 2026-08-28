@@ -5,10 +5,15 @@ Route Auto Reloader Lite is a powerful yet lightweight Chrome Extension that all
 ## 🌟 Key Features
 
 - **🎯 Target URLs:** Add multiple specific URLs that you want to be automatically reloaded.
-- **⏱️ Randomized Delays:** Set a maximum random delay (1-300 seconds) to prevent predictable reloading patterns.
+- **⏱️ Randomized Delays:** Set min/max random delay per URL (1-300 seconds) to prevent predictable reloading patterns.
 - **🔍 Active Tab Only:** Option to strictly reload only when you are viewing the active tab.
 - **📊 Real-time Dashboard:** Monitor the extension's status, see the countdown to the next reload, identify the next target URL, and keep track of total reloads.
 - **✨ Clean UI:** Intuitive and modern user interface to quickly start, pause, and configure settings.
+- **💾 Export/Import:** Backup and restore your settings as JSON.
+- **⌨️ Keyboard Shortcut:** Toggle with `Ctrl+Shift+R` (Windows/Linux) or `Cmd+Shift+R` (Mac).
+- **🌙 Dark Mode:** Automatic dark mode support based on system preference.
+- **🔒 Smart Cache Management:** Auto-clears cache per domain every 20 reloads.
+- **✅ URL Validation:** Automatic validation and `https://` prefix correction.
 
 ## 🚀 Installation 
 
@@ -25,12 +30,18 @@ Route Auto Reloader Lite is a powerful yet lightweight Chrome Extension that all
 
 1. Click on the extension icon in your toolbar to open the popup interface.
 2. **Add URLs:** Click the "Add URL" button to insert the links you want the extension to reload.
-3. **Configure Settings:** 
-   - Set the `Max Random Delay` in seconds.
+3. **Configure Per-URL Settings:** Each URL has its own Min/Max delay (seconds).
+4. **Configure Global Settings:** 
+   - Set the `Global Min Delay` and `Global Max Delay` as defaults for new URLs.
    - Toggle `Active Tab Only` depending on your needs.
-4. **Start:** Click the **Start** button to begin the auto-reload sequence.
-5. **Pause:** Click the **Pause** button whenever you want to momentarily stop the reloads.
-6. Check the Status Dashboard to see the countdown and the current reload count.
+5. **Start:** Click the **Start** button to begin the auto-reload sequence.
+6. **Pause:** Click the **Pause** button whenever you want to momentarily stop the reloads.
+7. Check the Status Dashboard to see the countdown and the current reload count.
+8. **Export/Import:** Use the Export/Import buttons in Settings to backup/restore your configuration.
+
+## ⌨️ Keyboard Shortcuts
+
+- **Toggle Reloader:** `Ctrl+Shift+R` (Windows/Linux) / `Cmd+Shift+R` (Mac)
 
 ## 👨‍💻 Developer
 

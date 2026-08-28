@@ -1,5 +1,6 @@
 const urlListEl = document.getElementById("urlList");
 const maxEl = document.getElementById("maxsec");
+const minEl = document.getElementById("minsec");
 const activeOnlyEl = document.getElementById("activeOnly");
 
 // Dashboard Elements
@@ -12,27 +13,75 @@ const countEl = document.getElementById("count");
 // Buttons
 const startBtn = document.getElementById("startbtn");
 const pauseBtn = document.getElementById("pausebtn");
+const exportBtn = document.getElementById("exportBtn");
+const importBtn = document.getElementById("importBtn");
+const importFile = document.getElementById("importFile");
+const updateBtn = document.getElementById("updateUrls");
+const addUrlBtn = document.getElementById("addUrl");
+const clearUrlsBtn = document.getElementById("clearUrls");
+
+// URL validation helper
+function normalizeUrl(url) {
+  url = url.trim();
+  if (!url) return null;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  try {
+    new URL(url);
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+function showUrlError(input, message) {
+  input.setCustomValidity(message);
+  input.reportValidity();
+}
+
+function clearUrlError(input) {
+  input.setCustomValidity('');
+}
+
+// Show toast notification
+function showToast(message, type = 'info') {
+  const existingToast = document.querySelector('.toast');
+  if (existingToast) existingToast.remove();
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Force reflow for animation
+  toast.offsetHeight;
+  toast.classList.add('show');
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
+}
 
 async function load() {
-  const d = await chrome.storage.local.get(["routes", "activeOnly", "maxSec", "running"]);
+  const d = await chrome.storage.local.get(["routes", "activeOnly", "maxSec", "minSec", "running"]);
   const routes = d.routes || [];
   urlListEl.innerHTML = "";
-  
+
   if (routes.length === 0) {
     // Add one empty input by default if none exist
-    addUrlItem("", 1);
+    addUrlItem("");
   } else {
     routes.forEach((r, i) => addUrlItem(r.url, i + 1));
   }
-  
+
   if (d.maxSec) maxEl.value = d.maxSec;
+  if (d.minSec) minEl.value = d.minSec;
   activeOnlyEl.checked = !!d.activeOnly;
-  
+
   setUIState(!!d.running);
 }
 load();
 
-// Update UI logic based on running state
 function setUIState(isRunning) {
   if (isRunning) {
     dashboardEl.classList.add("running");
@@ -53,33 +102,47 @@ function setUIState(isRunning) {
 function addUrlItem(value = "", serial = null) {
   const wrapper = document.createElement("div");
   wrapper.className = "url-item";
-  
+
   const serialSpan = document.createElement("span");
   serialSpan.className = "url-serial";
   serialSpan.textContent = serial ? `${serial}.` : "";
-  
+
   const input = document.createElement("input");
   input.type = "text";
   input.value = value;
   input.placeholder = "https://site/example";
-  
-  const removeBtn = document.createElement("button");
-  removeBtn.type = "button";
-  removeBtn.className = "btn-icon";
-  removeBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
-  removeBtn.title = "Remove URL";
-  
-  removeBtn.onclick = () => {
+  input.setAttribute("aria-label", "Target URL");
+  input.className = "url-input";
+
+  // Delete button
+  const deleteBtn = document.createElement("button");
+  deleteBtn.type = "button";
+  deleteBtn.className = "btn-icon btn-delete";
+  deleteBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  deleteBtn.title = "Delete URL";
+  deleteBtn.setAttribute("aria-label", "Delete this URL");
+  deleteBtn.onclick = () => {
     wrapper.remove();
     updateSerials();
   };
 
+  // Real-time validation on blur
+  input.addEventListener('blur', () => {
+    const normalized = normalizeUrl(input.value);
+    if (input.value && !normalized) {
+      showUrlError(input, "Invalid URL format");
+    } else {
+      clearUrlError(input);
+      if (normalized) input.value = normalized;
+    }
+  });
+
   wrapper.appendChild(serialSpan);
   wrapper.appendChild(input);
-  wrapper.appendChild(removeBtn);
-  
+  wrapper.appendChild(deleteBtn);
+
   urlListEl.appendChild(wrapper);
-  return input; 
+  return input;
 }
 
 function updateSerials() {
@@ -89,39 +152,159 @@ function updateSerials() {
   });
 }
 
-// Button to add URL manually with auto-focus
-document.getElementById("addUrl").onclick = () => {
+// Button to add URL manually
+addUrlBtn.onclick = () => {
   const newInput = addUrlItem("", urlListEl.children.length + 1);
-  newInput.focus(); // auto-focus the newly added input
-  urlListEl.scrollTop = urlListEl.scrollHeight; // scroll to bottom
+  urlListEl.scrollTop = urlListEl.scrollHeight;
+  newInput.focus();
 };
 
 // Button to clear all URLs
-document.getElementById("clearUrls").onclick = () => {
+clearUrlsBtn.onclick = () => {
   urlListEl.innerHTML = "";
   addUrlItem("", 1); // keep at least one empty box
 };
 
+// Export settings
+exportBtn.onclick = async () => {
+  const d = await chrome.storage.local.get(["routes", "activeOnly", "maxSec", "minSec"]);
+  const data = JSON.stringify(d, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'route-reloader-settings.json';
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// Import settings
+importBtn.onclick = () => importFile.click();
+
+// Update button - saves both global settings AND URL list to storage
+updateBtn.onclick = async () => {
+  // Validate global settings
+  const minSec = Math.min(300, Math.max(1, Number(minEl.value) || 10));
+  const maxSec = Math.min(300, Math.max(1, Number(maxEl.value) || 300));
+
+  if (minSec > maxSec) {
+    showUrlError(minEl, "Min delay cannot exceed max delay");
+    return;
+  }
+  clearUrlError(minEl);
+  clearUrlError(maxEl);
+
+  // Validate and collect URL routes
+  const wrappers = Array.from(urlListEl.querySelectorAll('.url-item'));
+  const routes = [];
+  const seenUrls = new Set();
+
+  for (const wrapper of wrappers) {
+    const input = wrapper.querySelector('.url-input');
+    const url = input.value.trim();
+    if (!url) continue;
+
+    const normalized = normalizeUrl(url);
+    if (!normalized) {
+      showUrlError(input, "Invalid URL format");
+      return;
+    }
+
+    // Check for duplicates
+    if (seenUrls.has(normalized)) {
+      showUrlError(input, "Duplicate URL - each URL can only be added once");
+      return;
+    }
+    seenUrls.add(normalized);
+
+    // Use global min/max for all routes
+    routes.push({ url: normalized, enabled: true, minSec, maxSec });
+    clearUrlError(input);
+  }
+
+  // Save both global settings and routes in one operation
+  await chrome.storage.local.set({ routes, minSec, maxSec });
+
+  // Show success toast
+  showToast("Settings updated successfully!", "success");
+
+  // Visual feedback
+  const btn = document.getElementById("updateUrls");
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Updated!';
+  btn.style.backgroundColor = "var(--success)";
+  setTimeout(() => {
+    btn.innerHTML = originalText;
+    btn.style.backgroundColor = "";
+  }, 1500);
+};
+
+importFile.onchange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const text = await file.text();
+  try {
+    const data = JSON.parse(text);
+    if (data.routes) {
+      await chrome.storage.local.set(data);
+      load(); // reload UI
+      showToast("Settings imported successfully!", "success");
+    }
+  } catch (err) {
+    showToast('Invalid settings file: ' + err.message, "error");
+  }
+  importFile.value = ''; // reset for next import
+};
+
 // Start button
 startBtn.onclick = async () => {
-  const urls = Array.from(urlListEl.querySelectorAll("input[type='text']"))
-    .map((i) => i.value.trim())
-    .filter(Boolean);
-    
-  if (urls.length === 0) return; // Don't start if no URLs
+  const wrappers = Array.from(urlListEl.querySelectorAll('.url-item'));
+  const routes = [];
+  const seenUrls = new Set();
 
-  const maxSec = Math.min(300, Math.max(1, Number(maxEl.value) || 300));
-  const routes = urls.map((url) => ({ url, enabled: true, maxSec }));
+  for (const wrapper of wrappers) {
+    const input = wrapper.querySelector('.url-input');
+    const url = input.value.trim();
+    if (!url) continue;
+
+    const normalized = normalizeUrl(url);
+    if (!normalized) {
+      showUrlError(input, "Invalid URL format");
+      return;
+    }
+
+    // Check for duplicates
+    if (seenUrls.has(normalized)) {
+      showUrlError(input, "Duplicate URL - each URL can only be added once");
+      return;
+    }
+    seenUrls.add(normalized);
+
+    // Use global min/max for all routes
+    const minSec = Math.min(300, Math.max(1, Number(minEl.value) || 10));
+    const maxSec = Math.min(300, Math.max(1, Number(maxEl.value) || 300));
+
+    routes.push({ url: normalized, enabled: true, minSec, maxSec });
+    clearUrlError(input);
+  }
+
+  if (routes.length === 0) {
+    showToast("Please add at least one URL", "error");
+    return;
+  }
 
   await chrome.storage.local.set({
     routes,
     running: true,
     activeOnly: activeOnlyEl.checked,
-    maxSec,
+    maxSec: routes[0].maxSec,
+    minSec: routes[0].minSec,
   });
 
   setUIState(true);
   chrome.runtime.sendMessage({ type: "START" });
+  showToast("Reloader started!", "success");
 };
 
 // Pause button
@@ -129,6 +312,7 @@ pauseBtn.onclick = async () => {
   await chrome.storage.local.set({ running: false });
   setUIState(false);
   chrome.runtime.sendMessage({ type: "STOP" });
+  showToast("Reloader paused", "info");
 };
 
 // Update status from background
