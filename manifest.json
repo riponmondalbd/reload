@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Route Auto Reloader Lite",
-  "version": "1.2",
+  "version": "1.4.0",
+  "description": "Automatically reload specific URLs at randomized intervals",
   "permissions": ["tabs", "storage", "browsingData"],
   "host_permissions": ["<all_urls>"],
   "background": {
@@ -19,5 +20,14 @@
     "16": "icon-16.png",
     "48": "icon-48.png",
     "128": "icon-128.png"
+  },
+  "commands": {
+    "toggle-reloader": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+R",
+        "mac": "Command+Shift+R"
+      },
+      "description": "Start/Stop auto reload"
+    }
   }
 }
