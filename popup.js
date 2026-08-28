@@ -195,32 +195,16 @@ updateBtn.onclick = async () => {
   clearUrlError(maxEl);
 
   // Validate and collect URL routes
-  const wrappers = Array.from(urlListEl.querySelectorAll('.url-item'));
-  const routes = [];
-  const seenUrls = new Set();
+  const routes = collectRoutes();
+  if (!routes) return;
 
-  for (const wrapper of wrappers) {
-    const input = wrapper.querySelector('.url-input');
-    const url = input.value.trim();
-    if (!url) continue;
-
-    const normalized = normalizeUrl(url);
-    if (!normalized) {
-      showUrlError(input, "Invalid URL format");
-      return;
-    }
-
-    // Check for duplicates
-    if (seenUrls.has(normalized)) {
-      showUrlError(input, "Duplicate URL - each URL can only be added once");
-      return;
-    }
-    seenUrls.add(normalized);
-
-    // Use global min/max for all routes
-    routes.push({ url: normalized, enabled: true, minSec, maxSec });
-    clearUrlError(input);
+  if (routes.length === 0) {
+    showToast("Please add at least one URL", "error");
+    return;
   }
+
+  // Apply global min/max to all routes
+  routes.forEach((r) => { r.minSec = minSec; r.maxSec = maxSec; });
 
   // Save both global settings and routes in one operation
   await chrome.storage.local.set({ routes, minSec, maxSec });
@@ -229,13 +213,12 @@ updateBtn.onclick = async () => {
   showToast("Settings updated successfully!", "success");
 
   // Visual feedback
-  const btn = document.getElementById("updateUrls");
-  const originalText = btn.innerHTML;
-  btn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Updated!';
-  btn.style.backgroundColor = "var(--success)";
+  const originalText = updateBtn.innerHTML;
+  updateBtn.innerHTML = '<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Updated!';
+  updateBtn.style.backgroundColor = "var(--success)";
   setTimeout(() => {
-    btn.innerHTML = originalText;
-    btn.style.backgroundColor = "";
+    updateBtn.innerHTML = originalText;
+    updateBtn.style.backgroundColor = "";
   }, 1500);
 };
 
@@ -257,8 +240,8 @@ importFile.onchange = async (e) => {
   importFile.value = ''; // reset for next import
 };
 
-// Start button
-startBtn.onclick = async () => {
+// Collect and validate routes from the URL list
+function collectRoutes() {
   const wrappers = Array.from(urlListEl.querySelectorAll('.url-item'));
   const routes = [];
   const seenUrls = new Set();
@@ -271,35 +254,43 @@ startBtn.onclick = async () => {
     const normalized = normalizeUrl(url);
     if (!normalized) {
       showUrlError(input, "Invalid URL format");
-      return;
+      return null;
     }
 
-    // Check for duplicates
     if (seenUrls.has(normalized)) {
       showUrlError(input, "Duplicate URL - each URL can only be added once");
-      return;
+      return null;
     }
     seenUrls.add(normalized);
-
-    // Use global min/max for all routes
-    const minSec = Math.min(300, Math.max(1, Number(minEl.value) || 10));
-    const maxSec = Math.min(300, Math.max(1, Number(maxEl.value) || 300));
-
-    routes.push({ url: normalized, enabled: true, minSec, maxSec });
+    routes.push({ url: normalized, enabled: true });
     clearUrlError(input);
   }
+
+  return routes;
+}
+
+// Start button
+startBtn.onclick = async () => {
+  const minSec = Math.min(300, Math.max(1, Number(minEl.value) || 10));
+  const maxSec = Math.min(300, Math.max(1, Number(maxEl.value) || 300));
+
+  const routes = collectRoutes();
+  if (!routes) return;
 
   if (routes.length === 0) {
     showToast("Please add at least one URL", "error");
     return;
   }
 
+  // Apply global min/max to all routes
+  routes.forEach((r) => { r.minSec = minSec; r.maxSec = maxSec; });
+
   await chrome.storage.local.set({
     routes,
     running: true,
     activeOnly: activeOnlyEl.checked,
-    maxSec: routes[0].maxSec,
-    minSec: routes[0].minSec,
+    maxSec,
+    minSec,
   });
 
   setUIState(true);

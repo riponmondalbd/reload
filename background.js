@@ -67,7 +67,9 @@ function updateBadge(isRunning) {
 function setBadgeText(value) {
   // Chrome badge text limited to ~4-6 chars, truncate if needed
   const text = String(value);
-  chrome.action.setBadgeText({ text: text.length > 4 ? text.slice(0, 3) + '+' : text });
+  chrome.action.setBadgeText({
+    text: text.length > 4 ? text.slice(0, 3) + "+" : text,
+  });
 }
 
 function stop() {
@@ -147,17 +149,20 @@ async function tick() {
 
 function sendStatus() {
   // Show the next URL to be reloaded
-  const next = (shuffledRoutes.length > 0 && routePosition < shuffledRoutes.length)
-    ? shuffledRoutes[routePosition].url
-    : null;
-  chrome.runtime.sendMessage({
-    type: "STATUS",
-    remaining,
-    next,
-    count: totalReloads(),
-  }).catch(() => {
-    // Ignore error when popup is closed
-  });
+  const next =
+    shuffledRoutes.length > 0 && routePosition < shuffledRoutes.length
+      ? shuffledRoutes[routePosition].url
+      : null;
+  chrome.runtime
+    .sendMessage({
+      type: "STATUS",
+      remaining,
+      next,
+      count: totalReloads(),
+    })
+    .catch(() => {
+      // Ignore error when popup is closed
+    });
 }
 
 async function reloadRoute(url, activeOnly) {
@@ -179,7 +184,7 @@ async function reloadRoute(url, activeOnly) {
     return;
   }
 
-  // update the tab to navigate to the new URL (same tab)
+  // update the tab to navigate to the new URL
   try {
     await chrome.tabs.update(tab.id, { url });
   } catch (err) {
